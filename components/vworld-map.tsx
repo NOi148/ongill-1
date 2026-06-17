@@ -1,6 +1,6 @@
-"use client"
+'use client'
 
-import { useRef } from "react"
+import { useRef, useEffect, useState } from "react"
 import Script from 'next/script'
 
 declare global {
@@ -12,6 +12,11 @@ declare global {
 export function VWorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null)
   const isMapInitialized = useRef(false)
+  const [hostname, setHostname] = useState("")
+
+  useEffect(() => {
+    setHostname(window.location.hostname)
+  }, [])
 
   const handleScriptLoad = () => {
     if (!mapContainer.current || !window.vw || isMapInitialized.current) {
@@ -44,10 +49,14 @@ export function VWorldMap() {
     }
   }
 
+  if (!hostname) {
+    return <div>Loading...</div>
+  }
+
   return (
     <>
         <Script
-            src={`https://map.vworld.kr/js/apis/openapi/v2.0/openapi.js?key=${process.env.NEXT_PUBLIC_VWORLD_API_KEY}&domain=ongil.vercel.app`}
+            src={`https://map.vworld.kr/js/apis/openapi/v2.0/openapi.js?key=${process.env.NEXT_PUBLIC_VWORLD_API_KEY}&domain=${hostname}`}
             strategy="afterInteractive"
             onLoad={handleScriptLoad}
             onError={(e) => console.error('VWorld script failed to load:', e)}
