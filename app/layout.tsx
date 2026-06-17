@@ -1,8 +1,8 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
+import { VWorldScriptLoader } from '@/components/vworld-script-loader' // 새로 만든 컴포넌트 임포트
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -44,16 +44,7 @@ export default function RootLayout({
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
         
-        <Script
-          strategy="beforeInteractive"
-          src={`https://map.vworld.kr/js/webglMapInit.js.do?version=3.0&apiKey=${process.env.NEXT_PUBLIC_VWORLD_API_KEY}`}
-          onLoad={() => {
-            // 스크립트 로드가 완료되면 전역 initMap 함수를 호출합니다.
-            if (window.initMap) {
-              window.initMap()
-            }
-          }}
-        />
+        <VWorldScriptLoader /> {/* 기존 Script 태그 대신 컴포넌트 사용 */}
       </body>
     </html>
   )
