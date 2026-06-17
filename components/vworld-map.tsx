@@ -57,7 +57,7 @@ export function VWorldMap() {
     <>
         <Script
             src={`https://map.vworld.kr/js/webglMapInit.js.do?version=3.0&apiKey=${process.env.NEXT_PUBLIC_VWORLD_API_KEY}&domain=${hostname}`}
-            strategy="afterInteractive"
+            strategy="beforeInteractive"
             onLoad={handleScriptLoad}
             onError={(e) => console.error('VWorld script failed to load:', e)}
         />
