@@ -2,7 +2,6 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { VWorldScriptLoader } from '@/components/vworld-script-loader' // 새로 만든 컴포넌트 임포트
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -43,8 +42,6 @@ export default function RootLayout({
       <body className="font-sans antialiased">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
-        
-        <VWorldScriptLoader /> {/* 기존 Script 태그 대신 컴포넌트 사용 */}
       </body>
     </html>
   )
