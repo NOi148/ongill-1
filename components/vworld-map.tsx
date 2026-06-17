@@ -1,30 +1,27 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 
 declare global {
   interface Window {
     vw: any
+    initMap?: () => void // initMap이 없을 수도 있음을 타입에 명시합니다.
   }
 }
 
 export function VWorldMap() {
   const mapContainer = useRef<HTMLDivElement>(null)
-  const [isApiReady, setApiReady] = useState(false)
+  const isMapInitialized = useRef(false)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (window.vw) {
-        setApiReady(true)
-        clearInterval(interval)
+    const initMap = () => {
+      if (!mapContainer.current || isMapInitialized.current) {
+        return
       }
-    }, 100)
 
-    return () => clearInterval(interval)
-  }, [])
-
-  useEffect(() => {
-    if (isApiReady && mapContainer.current && mapContainer.current.childElementCount === 0) {
+      // 지도 컨테이너에 vw-map-ready 클래스를 추가하여 로딩 메시지를 숨깁니다.
+      mapContainer.current.classList.add("vw-map-ready")
+      
       try {
         new window.vw.ol3.Map(mapContainer.current.id, {
           basemapType: "street",
@@ -40,19 +37,45 @@ export function VWorldMap() {
             bearing: 0,
           },
         })
+        isMapInitialized.current = true
       } catch (e) {
         console.error("VWorld map initialization failed:", e)
+        // 실패 시 로딩 메시지를 다시 표시할 수 있습니다.
+        mapContainer.current.classList.remove("vw-map-ready")
       }
     }
-  }, [isApiReady])
+
+    // 전역 스코프에 initMap 함수를 노출시킵니다.
+    window.initMap = initMap
+
+    // VWorld API 스크립트가 이미 로드되었는지 확인합니다.
+    if (window.vw) {
+      initMap()
+    }
+
+    // 컴포넌트 언마운트 시 전역 함수 정리 (delete 대신 undefined 할당)
+    return () => {
+      window.initMap = undefined
+    }
+  }, [])
 
   return (
-    <div ref={mapContainer} id="vworld-map" style={{ width: "100%", height: "100%" }}>
-      {!isApiReady && (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-          <p>지도 API를 불러오는 중입니다...</p>
-        </div>
-      )}
+    // 스타일과 CSS 클래스를 사용하여 로딩 상태를 관리합니다.
+    <div ref={mapContainer} id="vworld-map" className="vworld-map-container" style={{ width: "100%", height: "100%" }}>
+      <div className="map-loading-message">
+        <p>지도 API를 불러오는 중입니다...</p>
+      </div>
+      <style jsx>{`
+        .vworld-map-container .map-loading-message {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100%;
+        }
+        .vworld-map-container.vw-map-ready .map-loading-message {
+          display: none;
+        }
+      `}</style>
     </div>
   )
 }

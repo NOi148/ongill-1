@@ -47,6 +47,12 @@ export default function RootLayout({
         <Script
           strategy="beforeInteractive"
           src={`https://map.vworld.kr/js/webglMapInit.js.do?version=3.0&apiKey=${process.env.NEXT_PUBLIC_VWORLD_API_KEY}`}
+          onLoad={() => {
+            // 스크립트 로드가 완료되면 전역 initMap 함수를 호출합니다.
+            if (window.initMap) {
+              window.initMap()
+            }
+          }}
         />
       </body>
     </html>
